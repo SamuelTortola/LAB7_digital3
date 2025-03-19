@@ -6,12 +6,16 @@
 //Curso Digital 3 -  IE9059
 //Laboratorio 7 
 //Hardware: Raspberry Pi 5 8GB RAM
-//Temporizadores, Tareas Periódicas y Sincronización Simple 
-//FECHA 18/03/2025
+//Escalonamiento de Tareas, Prioridades y Sincronización usando Semaphores 
+//FECHA 19/03/2025
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 
-/*El presente programa consiste en utilizar 3 LEDS */
+/*El presente programa consiste en utilizar 3 LEDS para una calle para permitir el paso
+de una dirección del tránsito, otra dirección del transito y una luz peatonal. La luz encendida representa
+“luz verde” (carros o peatones pueden avanzar), y la luz apagada representa “luz roja” (carros o
+peatones deben detenerse). La luz peatonal sólo se activará si un botón (push button) se ha
+presionado previamente (el botón es para indicar el deseo de los peatones de cruzar la calle).*/
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -30,12 +34,20 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/timerfd.h>
+#include "IE3059lab7.h"
+#include <wiringPi.h>
+
 
 
 
 ////////////////////////////////////////////////////////////////////////////////////
 //Definiciones
 ////////////////////////////////////////////////////////////////////////////////////|
+
+#define LED_PASO1 2   //GPIO 2 de la Raspberry
+#define LED_PASO2 3  //GPIO 3 de la Raspberry
+#define LED_PEATONAL 27  //GPIO 27 de la Raspberry
+
 
 
 
@@ -54,6 +66,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 int main(void) {
-  
+  wiringPiSetup();
+    pinMode(LED_PASO1, OUTPUT);
+    pinMode(LED_PASO2, OUTPUT);
+    pinMode(LED_PEATONAL, OUTPUT);
+
+    while (1){
+
+        
+    }
 
 }
