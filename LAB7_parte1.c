@@ -47,6 +47,7 @@ presionado previamente (el botón es para indicar el deseo de los peatones de cr
 #define LED_PASO1 2   //GPIO 2 de la Raspberry
 #define LED_PASO2 3  //GPIO 3 de la Raspberry
 #define LED_PEATONAL 27  //GPIO 27 de la Raspberry
+#define BOTON_PEATONAL 26  //GPIO 26 de la Raspberry
 
 
 
@@ -73,7 +74,7 @@ int main(void) {
 
     while (1){
 
-        
+
     }
 
 }
