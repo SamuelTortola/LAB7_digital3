@@ -68,13 +68,37 @@ presionado previamente (el botón es para indicar el deseo de los peatones de cr
 
 int main(void) {
   wiringPiSetup();
-    pinMode(LED_PASO1, OUTPUT);
-    pinMode(LED_PASO2, OUTPUT);
-    pinMode(LED_PEATONAL, OUTPUT);
+  pinMode(LED_PASO1, OUTPUT);
+  pinMode(LED_PASO2, OUTPUT);
+  pinMode(LED_PEATONAL, OUTPUT);
+  pinMode(BOTON_PEATONAL, INPUT);
 
     while (1){
+       // Encender luz de la primera dirección
+       digitalWrite(LED_PASO1, HIGH);
+       digitalWrite(LED_PASO2, LOW);
+       digitalWrite(LED_PEATONAL, LOW);
+       sleep(1); // Esperar 1 segundo
+
+       // Encender luz de la segunda dirección
+       digitalWrite(LED_PASO1, LOW);
+       digitalWrite(LED_PASO2, HIGH);
+       digitalWrite(LED_PEATONAL, LOW);
+       sleep(1); // Esperar 1 segundo
+
+        // Revisar el botón peatonal
+        if (check_button()) {
+        // Encender luz peatonal
+        digitalWrite(LED_PASO1, LOW);
+        digitalWrite(LED_PASO2, LOW);
+        digitalWrite(LED_PEATONAL, HIGH);
+        sleep(1); // Esperar 1 segundo
+
+        // Resetear el estado del botón
+        clear_button();
+    }
 
 
     }
-
+    return 0;
 }
