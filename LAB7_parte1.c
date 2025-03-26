@@ -7,7 +7,7 @@
 //Laboratorio 7 
 //Hardware: Raspberry Pi 5 8GB RAM
 //Escalonamiento de Tareas, Prioridades y Sincronización usando Semaphores 
-//FECHA 19/03/2025
+//FECHA 26/03/2025
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,10 +44,10 @@ presionado previamente (el botón es para indicar el deseo de los peatones de cr
 //Definiciones
 ////////////////////////////////////////////////////////////////////////////////////|
 
-#define LED_PASO1 2   //GPIO 2 de la Raspberry
-#define LED_PASO2 3  //GPIO 3 de la Raspberry
-#define LED_PEATONAL 27  //GPIO 27 de la Raspberry
-#define BOTON_PEATONAL 26  //GPIO 26 de la Raspberry
+#define LED_PASO1 2   // de la Raspberry, físico 13
+#define LED_PASO2 3  // de la Raspberry, físico 15
+#define LED_PEATONAL 27  //de la Raspberry, físico 36
+#define BOTON_PEATONAL 26  // de la Raspberry, físico 32
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,9 @@ int main(void) {
        sleep(1); // Esperar 1 segundo
 
         // Revisar el botón peatonal
+         // if (digitalRead(BOTON_PEATONAL) == HIGH) {
         if (check_button()) {
+        printf("Estado del botón: %d\n", check_button());
         // Encender luz peatonal
         digitalWrite(LED_PASO1, LOW);
         digitalWrite(LED_PASO2, LOW);
