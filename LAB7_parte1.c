@@ -59,7 +59,7 @@ int main(void) {
   pinMode(LED_PASO1, OUTPUT);
   pinMode(LED_PASO2, OUTPUT);
   pinMode(LED_PEATONAL, OUTPUT);
-  //pinMode(BOTON_PEATONAL, INPUT);
+  pinMode(BOTON_PEATONAL, INPUT);
 
     while (1){
        // Encender luz de la primera dirección
