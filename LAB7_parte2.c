@@ -7,7 +7,7 @@
 //Laboratorio 7 
 //Hardware: Raspberry Pi 5 8GB RAM
 //Temporizadores, Tareas Periódicas y Sincronización Simple 
-//FECHA 26/03/2025
+//FECHA 18/03/2025
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,15 +37,10 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 #include <sys/timerfd.h>
 #include "IE3059lab7.h"
 #include <wiringPi.h>
-<<<<<<< HEAD
-=======
-
->>>>>>> 91f95a0c1f8c3b4174c7a14a76bd2bd4531dc99f
 
 #include <semaphore.h>// Libreria de semaforos
 
 ////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 // Definiciones
 ////////////////////////////////////////////////////////////////////////////////////
 #define LED_PASO1 2       // GPIO 2 de la Raspberry
@@ -159,43 +154,6 @@ int main(int argc, char *argv[]) {
 
     // Destruir semáforo
     sem_destroy(&my_semaphore);
-=======
-//Definiciones
-////////////////////////////////////////////////////////////////////////////////////|
-
-#define LED_PASO1 2   // de la Raspberry, físico 13
-#define LED_PASO2 3  // de la Raspberry, físico 15
-#define LED_PEATONAL 27  //de la Raspberry, físico 36
-//#define BOTON_PEATONAL 26  // de la Raspberry, físico 32
-
-
-////////////////////////////////////////////////////////////////////////////////////
-//MAIN
-////////////////////////////////////////////////////////////////////////////////////
-
-int main(void) {
-  wiringPiSetup();
-  pinMode(LED_PASO1, OUTPUT);
-  pinMode(LED_PASO2, OUTPUT);
-  pinMode(LED_PEATONAL, OUTPUT);
-  //pinMode(BOTON_PEATONAL, INPUT);
-
-
-
-  pthread_t hilos[3]; // 3 hilos
-    pthread_create(&hilos[0], NULL, (void*)&FIRST, NULL);    //Crear hilo 1
-    pthread_create(&hilos[1], NULL, (void*)&SECOND, NULL);   //Crear hilo 2
-    pthread_create(&hilos[2], NULL, (void*)&THIRD, NULL);    //Crear hilo 3
-
-
-   // Esperar a que elos hilos terminen
-   pthread_join(hilos[0], NULL);
-   pthread_join(hilos[1], NULL);
-   pthread_join(hilos[2], NULL);
-
-
-
->>>>>>> 91f95a0c1f8c3b4174c7a14a76bd2bd4531dc99f
 
     return 0;
 }
