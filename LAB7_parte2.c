@@ -10,21 +10,16 @@
 //FECHA 18/03/2025
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
-
 /*El presente programa consiste en un programa con tres hilos. Cada hilo es responsable de encender
 y apagar una de las luces. Para evitar que haya más de una luz encendida a la vez, se implementa 
  un mecanismo de sincronización para los hilos. Esto se hizo por medio de semáforos
 (semaphores). Se ajustó  la prioridad y la política de escalonamiento de los hilos. El
 programa permite ingresar como argumentos las prioridades de los tres hilos. Si se corre el
 programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1.  */
-
-
 ////////////////////////////////////////////////////////////////////////////////////
 //Bibliotecas
 ////////////////////////////////////////////////////////////////////////////////////
-
-#define _GNU_SOURCE
-
+#define _GNU_SOURCE //Hola
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -37,9 +32,7 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 #include <sys/timerfd.h>
 #include "IE3059lab7.h"
 #include <wiringPi.h>
-
 #include <semaphore.h>// Libreria de semaforos
-
 ////////////////////////////////////////////////////////////////////////////////////
 // Definiciones
 ////////////////////////////////////////////////////////////////////////////////////
