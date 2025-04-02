@@ -36,10 +36,10 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 ////////////////////////////////////////////////////////////////////////////////////
 // Definiciones
 ////////////////////////////////////////////////////////////////////////////////////
-#define LED_PASO1 2       // GPIO 2 de la Raspberry
-#define LED_PASO2 3       // GPIO 3 de la Raspberry
-#define LED_PEATONAL 27   // GPIO 27 de la Raspberry
-#define BOTON_PEATONAL 26 // GPIO 26 de la Raspberry
+#define LED_PASO1 2   // de la Raspberry, físico 13
+#define LED_PASO2 3  // de la Raspberry, físico 15
+#define LED_PEATONAL 27  //de la Raspberry, físico 36
+#define BOTON_PEATONAL 26  // de la Raspberry, físico 32
 
 #define INIT_VALUE 1 // Valor inicial del semáforo
 
