@@ -48,26 +48,18 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 ////////////////////////////////////////////////////////////////////////////////////
 pthread_t hilo[3];
 sem_t my_semaphore; // Semáforo
+int estado_boton = 0; // Variable para almacenar el estado del botón    
+int boton_presionado = 0; // Variable para registrar si el botón fue presionado
 ////////////////////////////////////////////////////////////////////////////////////
 // Funciones
 ////////////////////////////////////////////////////////////////////////////////////
 void *LUZ_1(void *arg) {
     while (1) {
         sem_wait(&my_semaphore);
-
-        int sem_value; // Variable para almacenar el valor del semáforo
-        sem_getvalue(&my_semaphore, &sem_value);
-        printf("Hilo 1 valor de semáforo: %d\n", sem_value);
-
         digitalWrite(LED_PASO1, HIGH);
         sleep(1); // 1 segundo de espera
         digitalWrite(LED_PASO1, LOW);
-
         sem_post(&my_semaphore);
-
-        sem_getvalue(&my_semaphore, &sem_value);
-        printf("Hilo 1 valor de semáforo: %d\n", sem_value);
-
         usleep(1000); // 1 ms de espera
     }
     return NULL;
@@ -76,55 +68,27 @@ void *LUZ_1(void *arg) {
 void *LUZ_2(void *arg) {
     while (1) {
         sem_wait(&my_semaphore);
-
-        int sem_value; // Variable para almacenar el valor del semáforo
-        sem_getvalue(&my_semaphore, &sem_value);
-        printf("Hilo 2 valor de semáforo: %d\n", sem_value);
-
         digitalWrite(LED_PASO2, HIGH);
         sleep(1); // 1 segundo de espera
         digitalWrite(LED_PASO2, LOW);
-
         sem_post(&my_semaphore);
-
-        sem_getvalue(&my_semaphore, &sem_value);
-        printf("Hilo 2 valor de semáforo: %d\n", sem_value);
-
         usleep(1000); // 1 ms de espera
     }
     return NULL;
 }
 void *LUZ_3(void *arg) {
-    int boton_presionado = 0; // Variable para registrar si el botón fue presionado
 
     while (1) {
-        // Leer el estado del botón
-        int estado_boton = digitalRead(BOTON_PEATONAL);
-
-        // Registrar el botón solo si no ha sido presionado antes
-        if (estado_boton == HIGH && boton_presionado == 0) {
-            boton_presionado = 1; // Registrar que el botón fue presionado
-        }
-
         // Si el botón fue presionado, activar la luz peatonal
+        sem_wait(&my_semaphore);
         if (boton_presionado) {
-            sem_wait(&my_semaphore);
-
-            int sem_value; // Variable para almacenar el valor del semáforo
-            sem_getvalue(&my_semaphore, &sem_value);
-            printf("Hilo 3 valor de semáforo: %d\n", sem_value);
-
             digitalWrite(LED_PEATONAL, HIGH);
             sleep(1); // 1 segundo de espera
             digitalWrite(LED_PEATONAL, LOW);
-
-            sem_post(&my_semaphore);
-
-            sem_getvalue(&my_semaphore, &sem_value);
-            printf("Hilo 3 valor de semáforo: %d\n", sem_value);
-
             boton_presionado = 0; // Resetear el estado del botón
         }
+
+        sem_post(&my_semaphore);
 
         usleep(10000); // 1 ms de espera
     }
@@ -147,10 +111,13 @@ int main(int argc, char *argv[]) {
 
     // Inicializar semáforo
     sem_init(&my_semaphore, 0, INIT_VALUE);
-
+    /////////////////////////////////////////////////////////////////////////////
     // Configurar prioridades
+    pthread_t hilo[3];
     pthread_attr_t attr[3];
     struct sched_param param[3];
+    int politica = SCHED_RR;
+
     int prioridades[3] = {1, 1, 1}; // Prioridades por defecto
 
     // Si se ingresaron prioridades como argumentos
@@ -162,15 +129,15 @@ int main(int argc, char *argv[]) {
 
     // Crear hilos con prioridades
     for (int i = 0; i < 3; i++) {
+        // Inicializar atributos del hilo
         pthread_attr_init(&attr[i]);
-        pthread_attr_setschedpolicy(&attr[i], SCHED_RR); // Política Round Robin
+        // Establecer la política de escalonamiento
+        pthread_attr_setschedpolicy(&attr[i], politica); // Política Round Robin
+        // Establecer la prioridad del hilo
         param[i].sched_priority = prioridades[i];
-    
-        if (pthread_attr_setschedparam(&attr[i], &param[i]) != 0) {
-            printf("Error: No se pudo establecer la prioridad del hilo %d\n", i);
-        }
+        // Establecer el atributo del hilo
+        pthread_attr_setschedparam(&attr[i], &param[i]);
         // creando hilos
-            
         if (i == 0) {
             pthread_create(&hilo[i], &attr[i], LUZ_1, NULL);
         } else if (i == 1) {
@@ -183,7 +150,14 @@ int main(int argc, char *argv[]) {
 
     // Mantener el programa en ejecución
     while (1) {
-        usleep(50000);// 50000 microsegundos = 50 ms
+        // Leer el estado del botón
+        estado_boton = digitalRead(BOTON_PEATONAL);
+
+        // Registrar el botón solo si no ha sido presionado antes
+        if (estado_boton == HIGH && boton_presionado == 0) {
+            boton_presionado = 1; // Registrar que el botón fue presionado
+        }
+        usleep(1000);// 50000 microsegundos = 50 ms
     }
 
     // Destruir semáforo
