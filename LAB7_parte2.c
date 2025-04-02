@@ -19,7 +19,7 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 ////////////////////////////////////////////////////////////////////////////////////
 //Bibliotecas
 ////////////////////////////////////////////////////////////////////////////////////
-#define _GNU_SOURCE //Hola
+#define _GNU_SOURCE 
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -30,9 +30,11 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 #include <stdlib.h>
 #include <time.h>
 #include <sys/timerfd.h>
-#include "IE3059lab7.h"
 #include <wiringPi.h>
+#include <stdio.h>
 #include <semaphore.h>// Libreria de semaforos
+#include "IE3059lab7.h"
+
 ////////////////////////////////////////////////////////////////////////////////////
 // Definiciones
 ////////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +50,8 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 ////////////////////////////////////////////////////////////////////////////////////
 pthread_t hilo[3];
 sem_t my_semaphore; // Semáforo
-
+int estado_boton = 0; // Variable para almacenar el estado del botón    
+int boton_presionado = 0; // Variable para registrar si el botón fue presionado
 ////////////////////////////////////////////////////////////////////////////////////
 // Funciones
 ////////////////////////////////////////////////////////////////////////////////////
@@ -75,25 +78,22 @@ void *LUZ_2(void *arg) {
     }
     return NULL;
 }
-
 void *LUZ_3(void *arg) {
-    struct sched_param param;
-    while (1) {
-        if (check_button()) {
 
-            sem_wait(&my_semaphore);
+    while (1) {
+        // Si el botón fue presionado, activar la luz peatonal
+        sem_wait(&my_semaphore);
+        if (check_button()) {
             digitalWrite(LED_PEATONAL, HIGH);
-            digitalWrite(LED_PASO1, LOW);
-            digitalWrite(LED_PASO2, LOW);
             sleep(1); // 1 segundo de espera
             digitalWrite(LED_PEATONAL, LOW);
-            sem_post(&my_semaphore);
-            
+            // Resetear el estado del botón
             clear_button();
-
         }
-        
-        usleep(1000); // 1 ms de espera
+
+        sem_post(&my_semaphore);
+
+        usleep(10000); // 1 ms de espera
     }
     return NULL;
 }
@@ -104,17 +104,23 @@ void *LUZ_3(void *arg) {
 int main(int argc, char *argv[]) {
     // Inicializar WiringPi y configurar pines
     wiringPiSetup();
+    // Configurar pines como salida
     pinMode(LED_PASO1, OUTPUT);
     pinMode(LED_PASO2, OUTPUT);
     pinMode(LED_PEATONAL, OUTPUT);
+    // Configurar el pin del botón como entrada con pull-down
     pinMode(BOTON_PEATONAL, INPUT);
+    pullUpDnControl(BOTON_PEATONAL, PUD_DOWN);
 
     // Inicializar semáforo
     sem_init(&my_semaphore, 0, INIT_VALUE);
-
+    /////////////////////////////////////////////////////////////////////////////
     // Configurar prioridades
+    pthread_t hilo[3];
     pthread_attr_t attr[3];
     struct sched_param param[3];
+    int politica = SCHED_RR;
+
     int prioridades[3] = {1, 1, 1}; // Prioridades por defecto
 
     // Si se ingresaron prioridades como argumentos
@@ -124,25 +130,37 @@ int main(int argc, char *argv[]) {
         prioridades[2] = atoi(argv[3]);
     }
 
-    // Crear hilos con prioridades
-    for (int i = 0; i < 3; i++) {
-        pthread_attr_init(&attr[i]);
-        pthread_attr_setschedpolicy(&attr[i], SCHED_RR); // Política de escalonamiento
-        param[i].sched_priority = prioridades[i];
-        pthread_attr_setschedparam(&attr[i], &param[i]);
 
-        if (i == 0) {
-            pthread_create(&hilo[i], &attr[i], LUZ_1, NULL);
-        } else if (i == 1) {
-            pthread_create(&hilo[i], &attr[i], LUZ_2, NULL);
-        } else if (i == 2) {
-            pthread_create(&hilo[i], &attr[i], LUZ_3, NULL);
-        }
+    // Crear hilos con prioridades
+for (int i = 0; i < 3; i++) {
+    // Inicializar atributos del hilo
+    pthread_attr_init(&attr[i]);
+
+    // Establecer la política de escalonamiento
+    pthread_attr_setschedpolicy(&attr[i], politica); // Política Round Robin (SCHED_RR)
+
+    // Establecer la política de herencia de programación
+    pthread_attr_setinheritsched(&attr[i], PTHREAD_EXPLICIT_SCHED); 
+    //Esta línea es clave para que se use la política y prioridad definida porque por defecto se hereda la política y prioridad del hilo padre
+
+    // Establecer la prioridad del hilo
+    param[i].sched_priority = prioridades[i];
+    pthread_attr_setschedparam(&attr[i], &param[i]);
+
+    // Crear el hilo correspondiente
+    if (i == 0) {
+        pthread_create(&hilo[i], &attr[i], LUZ_1, NULL);
+    } else if (i == 1) {
+        pthread_create(&hilo[i], &attr[i], LUZ_2, NULL);
+    } else if (i == 2) {
+        pthread_create(&hilo[i], &attr[i], LUZ_3, NULL);
     }
+}
+
 
     // Mantener el programa en ejecución
     while (1) {
-        usleep(5);
+        usleep(1000);// 50000 microsegundos = 50 ms
     }
 
     // Destruir semáforo
