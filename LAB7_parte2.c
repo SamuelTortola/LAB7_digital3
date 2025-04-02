@@ -10,6 +10,8 @@
 //FECHA 18/03/2025
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+
+
 /*El presente programa consiste en un programa con tres hilos. Cada hilo es responsable de encender
 y apagar una de las luces. Para evitar que haya más de una luz encendida a la vez, se implementa 
  un mecanismo de sincronización para los hilos. Esto se hizo por medio de semáforos
@@ -19,7 +21,7 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 ////////////////////////////////////////////////////////////////////////////////////
 //Bibliotecas
 ////////////////////////////////////////////////////////////////////////////////////
-#define _GNU_SOURCE //Hola
+#define _GNU_SOURCE 
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
