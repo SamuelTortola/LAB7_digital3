@@ -76,8 +76,8 @@ int main(void) {
 
         // Revisar el botón peatonal
 
-         // if (digitalRead(BOTON_PEATONAL) == HIGH) {
-        if (check_button()) {
+         // if (digitalRead(BOTON_PEATONAL) == HIGH) { //Para raspi 5
+        if (check_button()) { //Para raspi 3, 4
         // Encender luz peatonal
         digitalWrite(LED_PASO1, LOW);
         digitalWrite(LED_PASO2, LOW);
