@@ -36,10 +36,10 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 ////////////////////////////////////////////////////////////////////////////////////
 // Definiciones
 ////////////////////////////////////////////////////////////////////////////////////
-#define LED_PASO1 2       // GPIO 2 de la Raspberry
-#define LED_PASO2 3       // GPIO 3 de la Raspberry
-#define LED_PEATONAL 27   // GPIO 27 de la Raspberry
-#define BOTON_PEATONAL 26 // GPIO 26 de la Raspberry
+#define LED_PASO1 2   // de la Raspberry, físico 13
+#define LED_PASO2 3  // de la Raspberry, físico 15
+#define LED_PEATONAL 27  //de la Raspberry, físico 36
+#define BOTON_PEATONAL 26  // de la Raspberry, físico 32
 
 #define INIT_VALUE 1 // Valor inicial del semáforo
 
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
     // Crear hilos con prioridades
     for (int i = 0; i < 3; i++) {
         pthread_attr_init(&attr[i]);
-        pthread_attr_setschedpolicy(&attr[i], SCHED_RR); // Política FIFO
+        pthread_attr_setschedpolicy(&attr[i], SCHED_RR); // Política de escalonamiento
         param[i].sched_priority = prioridades[i];
         pthread_attr_setschedparam(&attr[i], &param[i]);
 
