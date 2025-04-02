@@ -30,8 +30,8 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 #include <stdlib.h>
 #include <time.h>
 #include <sys/timerfd.h>
-#include "IE3059lab7.h"
 #include <wiringPi.h>
+#include <stdio.h>
 #include <semaphore.h>// Libreria de semaforos
 ////////////////////////////////////////////////////////////////////////////////////
 // Definiciones
@@ -48,17 +48,26 @@ programa sin argumentos, las prioridades por defecto deben ser todas iguales a 1
 ////////////////////////////////////////////////////////////////////////////////////
 pthread_t hilo[3];
 sem_t my_semaphore; // Semáforo
-
 ////////////////////////////////////////////////////////////////////////////////////
 // Funciones
 ////////////////////////////////////////////////////////////////////////////////////
 void *LUZ_1(void *arg) {
     while (1) {
         sem_wait(&my_semaphore);
+
+        int sem_value; // Variable para almacenar el valor del semáforo
+        sem_getvalue(&my_semaphore, &sem_value);
+        printf("Hilo 1 valor de semáforo: %d\n", sem_value);
+
         digitalWrite(LED_PASO1, HIGH);
         sleep(1); // 1 segundo de espera
         digitalWrite(LED_PASO1, LOW);
+
         sem_post(&my_semaphore);
+
+        sem_getvalue(&my_semaphore, &sem_value);
+        printf("Hilo 1 valor de semáforo: %d\n", sem_value);
+
         usleep(1000); // 1 ms de espera
     }
     return NULL;
@@ -67,33 +76,57 @@ void *LUZ_1(void *arg) {
 void *LUZ_2(void *arg) {
     while (1) {
         sem_wait(&my_semaphore);
+
+        int sem_value; // Variable para almacenar el valor del semáforo
+        sem_getvalue(&my_semaphore, &sem_value);
+        printf("Hilo 2 valor de semáforo: %d\n", sem_value);
+
         digitalWrite(LED_PASO2, HIGH);
         sleep(1); // 1 segundo de espera
         digitalWrite(LED_PASO2, LOW);
+
         sem_post(&my_semaphore);
+
+        sem_getvalue(&my_semaphore, &sem_value);
+        printf("Hilo 2 valor de semáforo: %d\n", sem_value);
+
         usleep(1000); // 1 ms de espera
     }
     return NULL;
 }
-
 void *LUZ_3(void *arg) {
-    struct sched_param param;
-    while (1) {
-        if (check_button()) {
+    int boton_presionado = 0; // Variable para registrar si el botón fue presionado
 
+    while (1) {
+        // Leer el estado del botón
+        int estado_boton = digitalRead(BOTON_PEATONAL);
+
+        // Registrar el botón solo si no ha sido presionado antes
+        if (estado_boton == HIGH && boton_presionado == 0) {
+            boton_presionado = 1; // Registrar que el botón fue presionado
+        }
+
+        // Si el botón fue presionado, activar la luz peatonal
+        if (boton_presionado) {
             sem_wait(&my_semaphore);
+
+            int sem_value; // Variable para almacenar el valor del semáforo
+            sem_getvalue(&my_semaphore, &sem_value);
+            printf("Hilo 3 valor de semáforo: %d\n", sem_value);
+
             digitalWrite(LED_PEATONAL, HIGH);
-            digitalWrite(LED_PASO1, LOW);
-            digitalWrite(LED_PASO2, LOW);
             sleep(1); // 1 segundo de espera
             digitalWrite(LED_PEATONAL, LOW);
-            sem_post(&my_semaphore);
-            
-            clear_button();
 
+            sem_post(&my_semaphore);
+
+            sem_getvalue(&my_semaphore, &sem_value);
+            printf("Hilo 3 valor de semáforo: %d\n", sem_value);
+
+            boton_presionado = 0; // Resetear el estado del botón
         }
-        
-        usleep(1000); // 1 ms de espera
+
+        usleep(10000); // 1 ms de espera
     }
     return NULL;
 }
@@ -104,10 +137,13 @@ void *LUZ_3(void *arg) {
 int main(int argc, char *argv[]) {
     // Inicializar WiringPi y configurar pines
     wiringPiSetup();
+    // Configurar pines como salida
     pinMode(LED_PASO1, OUTPUT);
     pinMode(LED_PASO2, OUTPUT);
     pinMode(LED_PEATONAL, OUTPUT);
+    // Configurar el pin del botón como entrada con pull-down
     pinMode(BOTON_PEATONAL, INPUT);
+    pullUpDnControl(BOTON_PEATONAL, PUD_DOWN);
 
     // Inicializar semáforo
     sem_init(&my_semaphore, 0, INIT_VALUE);
@@ -127,10 +163,14 @@ int main(int argc, char *argv[]) {
     // Crear hilos con prioridades
     for (int i = 0; i < 3; i++) {
         pthread_attr_init(&attr[i]);
-        pthread_attr_setschedpolicy(&attr[i], SCHED_RR); // Política FIFO
+        pthread_attr_setschedpolicy(&attr[i], SCHED_RR); // Política Round Robin
         param[i].sched_priority = prioridades[i];
-        pthread_attr_setschedparam(&attr[i], &param[i]);
-
+    
+        if (pthread_attr_setschedparam(&attr[i], &param[i]) != 0) {
+            printf("Error: No se pudo establecer la prioridad del hilo %d\n", i);
+        }
+        // creando hilos
+            
         if (i == 0) {
             pthread_create(&hilo[i], &attr[i], LUZ_1, NULL);
         } else if (i == 1) {
@@ -138,11 +178,12 @@ int main(int argc, char *argv[]) {
         } else if (i == 2) {
             pthread_create(&hilo[i], &attr[i], LUZ_3, NULL);
         }
+
     }
 
     // Mantener el programa en ejecución
     while (1) {
-        usleep(5);
+        usleep(50000);// 50000 microsegundos = 50 ms
     }
 
     // Destruir semáforo
