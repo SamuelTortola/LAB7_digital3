@@ -83,11 +83,12 @@ void *LUZ_3(void *arg) {
     while (1) {
         // Si el botón fue presionado, activar la luz peatonal
         sem_wait(&my_semaphore);
-        if (boton_presionado) {
+        if (check_button()) {
             digitalWrite(LED_PEATONAL, HIGH);
             sleep(1); // 1 segundo de espera
             digitalWrite(LED_PEATONAL, LOW);
-            boton_presionado = 0; // Resetear el estado del botón
+            // Resetear el estado del botón
+            clear_button();
         }
 
         sem_post(&my_semaphore);
@@ -152,13 +153,6 @@ int main(int argc, char *argv[]) {
 
     // Mantener el programa en ejecución
     while (1) {
-        // Leer el estado del botón
-        estado_boton = digitalRead(BOTON_PEATONAL);
-
-        // Registrar el botón solo si no ha sido presionado antes
-        if (estado_boton == HIGH && boton_presionado == 0) {
-            boton_presionado = 1; // Registrar que el botón fue presionado
-        }
         usleep(1000);// 50000 microsegundos = 50 ms
     }
 
